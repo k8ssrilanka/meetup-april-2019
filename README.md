@@ -1,6 +1,8 @@
 # meetup-april-2019
 Files and configs related for Kubernetes Meetup April/May Edition
 
+Refer the HA-Kubeadm folder for Centos and Ubuntu installations
+
 ## Assumptions
 
 |Role|IP|OS|RAM|CPU|
