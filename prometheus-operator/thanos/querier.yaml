@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thanos-query
+  namespace: monitoring
+  labels:
+    app: thanos-query
+    thanos-peers: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thanos-query
+      thanos-peers: "true"
+  template:
+    metadata:
+      labels:
+        app: thanos-query
+        thanos-peers: "true"
+    spec:
+      containers:
+      - name: thanos-query
+        image: improbable/thanos:v0.3.2
+        args:
+        - "query"
+        - "--log.level=debug"
+        - "--query.replica-label=prometheus_replica"
+        - "--cluster.peers=thanos-peers.monitoring.svc:10900"
+        - "--web.route-prefix=/thanos"
+        - "--web.external-prefix=/thanos"
+        ports:
+        - name: http
+          containerPort: 10902
+        - name: grpc
+          containerPort: 10901
+        - name: cluster
+          containerPort: 10900
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    prometheus.io/path: /metrics
+    prometheus.io/port: "10902"
+    prometheus.io/scrape: "true"
+  name: thanos-query
+  labels:
+    app: thanos-query
+    release: prometheus-operator
+    jobLabel: thanos
+  namespace: monitoring
+spec:
+  selector:
+    app: thanos-query
+  ports:
+  - port: 9090
+    protocol: TCP
+    targetPort: http
+    name: http-query
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: thanos-query
+  namespace: monitoring
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /thanos
+spec: 
+  rules: 
+  - host: abca5399d721a11e9a6d902155387629-1887493565.eu-central-1.elb.amazonaws.com
+    http:
+      paths: 
+      - backend: 
+          serviceName: thanos-query
+          servicePort: 9090
+        path: /thanos
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: prom-thanos-query
+  namespace: monitoring
+  labels:
+    release: prometheus-kubernetes
+spec:
+  jobLabel: k8s-app
+  selector:
+    matchLabels:
+      app: thanos-query
+  namespaceSelector:
+    matchNames:
+      - "monitoring"
+  endpoints:
+  - port: http-query
+    interval: 15s

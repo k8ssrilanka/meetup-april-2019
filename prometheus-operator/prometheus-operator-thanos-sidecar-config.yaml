@@ -1,0 +1,4 @@
+type: s3
+config:
+  bucket: madushan-k8s-metrics
+  endpoint: s3.eu-central-1.amazonaws.com

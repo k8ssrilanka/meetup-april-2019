@@ -1,0 +1,82 @@
+alertmanager:
+  enabled: true
+  ingress:
+    enabled: true
+    hosts: 
+      - abca5399d721a11e9a6d902155387629-1887493565.eu-central-1.elb.amazonaws.com
+    paths: 
+      - /alertmanager
+  alertmanagerSpec:
+    routePrefix: /alertmanager
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_interval: 5m
+      group_wait: 30s
+      repeat_interval: 12h
+      group_by: 
+        - job
+        - alertname
+        - pod_name
+        - namespace
+      receiver: "null"
+      routes:
+      - match:
+          alertname: Watchdog
+        receiver: "null"
+    receivers:
+    - name: "null"
+grafana:
+  enabled: true
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    hosts: 
+      - abca5399d721a11e9a6d902155387629-1887493565.eu-central-1.elb.amazonaws.com
+    path: /grafana/?(.*)
+  env: 
+    GF_ROOT_URL: http://abca5399d721a11e9a6d902155387629-1887493565.eu-central-1.elb.amazonaws.com/grafana/
+kubeApiServer:
+  enabled: true
+kubeControllerManager:
+  enabled: true
+kubeDns:
+  enabled: true
+kubeEtcd:
+  enabled: true
+kubeScheduler:
+  enabled: true
+kubeStateMetrics:
+  enabled: true
+kubelet:
+  enabled: true
+nodeExporter:
+  enabled: true
+prometheus:
+  enabled: true
+  ingress:
+    enabled: true
+    hosts: 
+      - abca5399d721a11e9a6d902155387629-1887493565.eu-central-1.elb.amazonaws.com
+    paths:
+      - /prometheus
+  prometheusSpec:
+    routePrefix: /prometheus
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: gp2
+          accessModes:
+            - "ReadWriteOnce"
+          resources:
+            requests:
+              storage: 50Gi      
+prometheus-node-exporter:
+  extraArgs:
+  - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+)($|/)
+  - --collector.filesystem.ignored-fs-types=^(autofs|binfmt_misc|cgroup|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|mqueue|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|sysfs|tracefs)$
+prometheusOperator:
+  enabled: true
