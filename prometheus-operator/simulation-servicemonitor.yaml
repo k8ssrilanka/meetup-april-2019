@@ -1,0 +1,21 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: simulation-exporter
+  namespace: monitoring
+  labels:
+    release: prometheus-kubernetes
+spec:
+  jobLabel: simulation-exporter
+  selector:
+    matchLabels:
+      service: simulation-exporter
+  namespaceSelector:
+    matchNames:
+    - default
+  endpoints:
+  - interval: 15s
+    targetPort: 8080
+    honorLabels: true
+    path: /metrics

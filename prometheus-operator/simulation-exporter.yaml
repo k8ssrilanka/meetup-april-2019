@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simulation-exporter
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: simulation-exporter
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: simulation-exporter
+    spec:
+      containers:
+      - name: simulation-exporter
+        image: webdevops/simulation-exporter:latest
+        ports:
+        - containerPort: 8080
+        args:
+          - "--config-file=/app/config/node_exporter.yaml"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simulation-exporter
+  labels:
+    app: simulation-exporter
+    service: simulation-exporter
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: simulation-exporter
+  type: ClusterIP
