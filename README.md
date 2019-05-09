@@ -2,7 +2,7 @@
 
 #### Announcements 
  - [Kubernetes Sri Lanka Becomes a part of CNCF](Announcements/cncf.md) 
- - [Kubernetes Sri Lanka Becomes a part of CNCF](Announcements/training.md) 
+ - [Kubernetes Sri Lanka Community Training Program](Announcements/training.md) 
 
 ![Banner](banner.jpg)
 
